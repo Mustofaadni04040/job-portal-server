@@ -142,7 +142,7 @@ export const updateProfile = async (req, res) => {
 
     //update
     if (fullname) user.fullname = fullname;
-    if (email) user.emaill = email;
+    if (email) user.email = email;
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
     if (skills) user.profile.skills = skillsArray;
