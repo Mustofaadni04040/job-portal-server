@@ -5,6 +5,14 @@ import jwt from "jsonwebtoken";
 export const register = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, password, role } = req.body;
+    const allowedRoles = ["job-seeker", "recruiter"];
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        message: "role is not valid",
+        success: false,
+      });
+    }
 
     if (!fullname || !email || !phoneNumber || !password || !role) {
       return res.status(400).json({
