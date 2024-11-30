@@ -1,11 +1,36 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import getDataUri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
 
 export const register = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, password, role } = req.body;
     const allowedRoles = ["job-seeker", "recruiter"];
+    const file = req.file;
+    let cloudResponse;
+    const phoneNumberRegex = /^[0-9]{10,15}$/;
+
+    if (!phoneNumberRegex.test(phoneNumber)) {
+      return res.status(400).json({
+        message: "Invalid format phone number",
+        success: false,
+      });
+    }
+
+    if (file) {
+      try {
+        const fileUri = getDataUri(file);
+        cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      } catch (uploadError) {
+        console.log(uploadError);
+        return res.status(400).json({
+          message: "Failed upload file to cloudinary",
+          success: false,
+        });
+      }
+    }
 
     if (!allowedRoles.includes(role)) {
       return res.status(400).json({
@@ -37,6 +62,9 @@ export const register = async (req, res) => {
       phoneNumber,
       password: hashedPassword,
       role,
+      profile: {
+        profilePhoto: cloudResponse.secure_url,
+      },
     });
 
     return res.status(200).json({
@@ -132,20 +160,48 @@ export const updateProfile = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
     const file = req.file;
+    let cloudResponse;
     let skillsArray;
+    const phoneNumberRegex = /^[0-9]{10,15}$/;
+
+    const userId = req.id; //middleware authentication
+    let user = await User.findById(userId);
+
+    if (!phoneNumberRegex.test(phoneNumber)) {
+      return res.status(400).json({
+        message: "Invalid format phone number",
+        success: false,
+      });
+    }
+
+    // jika ada file resume
+    if (file) {
+      try {
+        const fileUri = getDataUri(file);
+        cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      } catch (uploadError) {
+        console.log(uploadError);
+        return res.status(400).json({
+          message: "Failed upload file to cloudinary",
+          success: false,
+        });
+      }
+    }
 
     if (skills) {
       skillsArray = skills.split(",");
     }
-
-    const userId = req.id; //middleware authentication
-    let user = await User.findById(userId);
 
     if (!user) {
       return res.status(400).json({
         message: "User not found",
         success: false,
       });
+    }
+
+    if (cloudResponse) {
+      user.profile.resume = cloudResponse.secure_url; // save cloudinary url
+      user.profile.resumeOriginalName = file.originalname; // save original file name
     }
 
     //update

@@ -11,10 +11,8 @@ import { isValidatedObjectId } from "../middlewares/isValidatedObjectId.js";
 const router = express.Router();
 
 router.route("/post-job").post(isAuthenticated, postJob);
-router.route("/get-jobs").get(isAuthenticated, getAllJobs);
+router.route("/get-jobs").get(getAllJobs);
 router.route("/get-admin-jobs").get(isAuthenticated, getAdminJobs);
-router
-  .route("/get-job/:id")
-  .get(isAuthenticated, isValidatedObjectId, getJobById);
+router.route("/get-job/:id").get(isValidatedObjectId, getJobById);
 
 export default router;
