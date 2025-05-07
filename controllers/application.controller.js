@@ -1,3 +1,4 @@
+import { acceptedMail, rejectedMail } from "../mail/index.js";
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
 
@@ -116,7 +117,15 @@ export const updateStatus = async (req, res) => {
       });
     }
 
-    const application = await Application.findOne({ _id: applicationId });
+    const application = await Application.findOne({
+      _id: applicationId,
+    })
+      .populate({
+        path: "job",
+        select: "title",
+        populate: { path: "company", select: "name" },
+      })
+      .populate({ path: "applicant", select: "fullname email" });
 
     if (!application) {
       return res.status(404).json({
@@ -127,6 +136,14 @@ export const updateStatus = async (req, res) => {
 
     application.status = status.toLowerCase();
     await application.save();
+
+    if (status === "accepted") {
+      await acceptedMail(application.applicant.email, application);
+    }
+
+    if (status === "rejected") {
+      await rejectedMail(application.applicant.email, application);
+    }
 
     return res.status(200).json({
       message: "Status updated successfully",
