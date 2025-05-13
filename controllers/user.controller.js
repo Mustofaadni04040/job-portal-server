@@ -6,8 +6,8 @@ import cloudinary from "../utils/cloudinary.js";
 
 export const register = async (req, res) => {
   try {
-    const { fullname, email, phoneNumber, password, role } = req.body;
-    const allowedRoles = ["job-seeker", "recruiter"];
+    const { fullname, email, phoneNumber, password } = req.body;
+    // const allowedRoles = ["job-seeker", "recruiter"];
     const file = req.file;
     let cloudResponse;
     const phoneNumberRegex = /^[0-9]{10,15}$/;
@@ -32,14 +32,14 @@ export const register = async (req, res) => {
       }
     }
 
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({
-        message: "role is not valid",
-        success: false,
-      });
-    }
+    // if (!allowedRoles.includes(role)) {
+    //   return res.status(400).json({
+    //     message: "role is not valid",
+    //     success: false,
+    //   });
+    // }
 
-    if (!fullname || !email || !phoneNumber || !password || !role) {
+    if (!fullname || !email || !phoneNumber || !password) {
       return res.status(400).json({
         message: "Something is missing",
         success: false,
@@ -61,7 +61,7 @@ export const register = async (req, res) => {
       email,
       phoneNumber,
       password: hashedPassword,
-      role,
+      // role,
       profile: {
         profilePhoto: cloudResponse.secure_url,
       },
@@ -78,8 +78,8 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
-    if (!email || !password || !role) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       return res.status(400).json({
         message: "Something is missing",
         success: false,
@@ -104,12 +104,12 @@ export const login = async (req, res) => {
     }
 
     //check role is correct or not
-    if (role !== user.role) {
-      return res.status(400).json({
-        message: "Account does not exist with this role",
-        success: false,
-      });
-    }
+    // if (role !== user.role) {
+    //   return res.status(400).json({
+    //     message: "Account does not exist with this role",
+    //     success: false,
+    //   });
+    // }
 
     const tokenData = {
       userId: user._id,
@@ -224,6 +224,51 @@ export const updateProfile = async (req, res) => {
 
     return res.status(200).json({
       message: "Profile updated successfully",
+      user,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateProfilePhoto = async (req, res) => {
+  try {
+    const file = req.file;
+    const userId = req.id; //middleware authentication
+    let user = await User.findById(userId);
+    let cloudResponse;
+
+    if (file) {
+      try {
+        const fileUri = getDataUri(file);
+        cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+          message: "Failed upload file to cloudinary",
+          success: false,
+        });
+      }
+    }
+
+    if (cloudResponse) {
+      user.profile.profilePhoto = cloudResponse.secure_url; // save cloudinary url
+    }
+
+    await user.save();
+
+    user = {
+      _id: user._id,
+      fullname: user.fullname,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      profile: user.profile,
+    };
+
+    return res.status(200).json({
+      message: "Profile photo updated successfully",
       user,
       success: true,
     });

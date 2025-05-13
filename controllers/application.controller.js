@@ -1,6 +1,7 @@
 import { acceptedMail, rejectedMail } from "../mail/index.js";
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
+import { User } from "../models/user.model.js";
 
 export const applyJob = async (req, res) => {
   try {
@@ -10,6 +11,15 @@ export const applyJob = async (req, res) => {
     if (!jobId) {
       return res.status(400).json({
         message: "Job id is required",
+        success: false,
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user.profile.resume) {
+      return res.status(400).json({
+        message: "Please upload your CV/Resume first",
         success: false,
       });
     }

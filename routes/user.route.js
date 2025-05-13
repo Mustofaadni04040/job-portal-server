@@ -4,6 +4,7 @@ import {
   logout,
   register,
   updateProfile,
+  updateProfilePhoto,
 } from "../controllers/user.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import { singleUpload } from "../middlewares/multer.js";
@@ -16,5 +17,8 @@ router.route("/logout").get(logout);
 router
   .route("/profile/update")
   .put(isAuthenticated, singleUpload, updateProfile);
+router
+  .route("/profilePhoto/update")
+  .put(isAuthenticated, singleUpload, updateProfilePhoto);
 
 export default router;
