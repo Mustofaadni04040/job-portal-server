@@ -57,25 +57,26 @@ export const postJob = async (req, res) => {
 
 export const getAllJobs = async (req, res) => {
   try {
-    const keyword = req.query.keyword || "";
-    const query = {
-      $or: [
-        {
-          title: {
-            $regex: keyword,
-            $options: "i",
-          },
-        },
-        {
-          description: {
-            $regex: keyword,
-            $options: "i",
-          },
-        },
-      ],
-    };
+    let condition = {};
+    const { keyword, location, jobType, experienceLevel } = req.query;
 
-    const jobs = await Job.find(query)
+    if (keyword) {
+      condition = { ...condition, title: { $regex: keyword, $options: "i" } };
+    }
+
+    if (location) {
+      condition = { ...condition, location: location };
+    }
+
+    if (jobType) {
+      condition = { ...condition, jobType: jobType };
+    }
+
+    if (experienceLevel) {
+      condition = { ...condition, experienceLevel: experienceLevel };
+    }
+
+    const jobs = await Job.find(condition)
       .populate({ path: "company" })
       .sort({ createdAt: -1 });
 
