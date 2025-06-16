@@ -71,7 +71,14 @@ export const getAllJobs = async (req, res) => {
     }
 
     if (locationArray.length > 0) {
-      condition = { ...condition, location: { $in: locationArray } };
+      const regexConditions = locationArray.map((location) => ({
+        location: { $regex: location.trim(), $options: "i" },
+      }));
+
+      condition = {
+        ...condition,
+        $or: [...(condition.$or || []), ...regexConditions], // Use $or to combine multiple regex conditions for search location & array location params
+      };
     }
 
     if (jobTypeArray.length > 0) {
