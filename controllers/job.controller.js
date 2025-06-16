@@ -59,21 +59,30 @@ export const getAllJobs = async (req, res) => {
   try {
     let condition = {};
     const { keyword, location, jobType, experienceLevel } = req.query;
+    const locationArray = location ? location.split(",") : [];
+
+    const jobTypeArray = jobType ? jobType.split(",") : [];
+    const experienceLevelArray = experienceLevel
+      ? experienceLevel.split(",").map(Number)
+      : [];
 
     if (keyword) {
       condition = { ...condition, title: { $regex: keyword, $options: "i" } };
     }
 
-    if (location) {
-      condition = { ...condition, location: location };
+    if (locationArray.length > 0) {
+      condition = { ...condition, location: { $in: locationArray } };
     }
 
-    if (jobType) {
-      condition = { ...condition, jobType: jobType };
+    if (jobTypeArray.length > 0) {
+      condition = { ...condition, jobType: { $in: jobTypeArray } };
     }
 
-    if (experienceLevel) {
-      condition = { ...condition, experienceLevel: experienceLevel };
+    if (experienceLevelArray.length > 0) {
+      condition = {
+        ...condition,
+        experienceLevel: { $in: experienceLevelArray },
+      };
     }
 
     const jobs = await Job.find(condition)
