@@ -58,7 +58,15 @@ export const postJob = async (req, res) => {
 export const getAllJobs = async (req, res) => {
   try {
     let condition = {};
-    const { keyword, location, jobType, experienceLevel, sortBy } = req.query;
+    const {
+      keyword,
+      location,
+      jobType,
+      experienceLevel,
+      sortBy,
+      limit = 6,
+      page = 1,
+    } = req.query;
     const locationArray = location ? location.split(",") : [];
     let sortCondition = { createdAt: -1 };
 
@@ -106,7 +114,11 @@ export const getAllJobs = async (req, res) => {
 
     const jobs = await Job.find(condition)
       .populate({ path: "company" })
-      .sort(sortCondition);
+      .sort(sortCondition)
+      .limit(limit)
+      .skip(limit * (page - 1));
+
+    const count = await Job.countDocuments(condition);
 
     if (!jobs) {
       return res.status(404).json({
@@ -117,6 +129,8 @@ export const getAllJobs = async (req, res) => {
 
     return res.status(200).json({
       jobs,
+      pages: Math.ceil(count / limit),
+      total: count,
       success: true,
     });
   } catch (error) {
