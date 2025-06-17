@@ -58,18 +58,21 @@ export const postJob = async (req, res) => {
 export const getAllJobs = async (req, res) => {
   try {
     let condition = {};
-    const { keyword, location, jobType, experienceLevel } = req.query;
+    const { keyword, location, jobType, experienceLevel, sortBy } = req.query;
     const locationArray = location ? location.split(",") : [];
+    let sortCondition = { createdAt: -1 };
 
     const jobTypeArray = jobType ? jobType.split(",") : [];
     const experienceLevelArray = experienceLevel
       ? experienceLevel.split(",").map(Number)
       : [];
 
+    // filter keyword
     if (keyword) {
       condition = { ...condition, title: { $regex: keyword, $options: "i" } };
     }
 
+    // filter multiple regex conditions
     if (locationArray.length > 0) {
       const regexConditions = locationArray.map((location) => ({
         location: { $regex: location.trim(), $options: "i" },
@@ -81,10 +84,12 @@ export const getAllJobs = async (req, res) => {
       };
     }
 
+    // filter jobType
     if (jobTypeArray.length > 0) {
       condition = { ...condition, jobType: { $in: jobTypeArray } };
     }
 
+    // filter experience
     if (experienceLevelArray.length > 0) {
       condition = {
         ...condition,
@@ -92,9 +97,16 @@ export const getAllJobs = async (req, res) => {
       };
     }
 
+    // sort for highest salary & latestPost
+    if (sortBy === "latestPost") {
+      sortCondition = { createdAt: -1 };
+    } else if (sortBy === "highestSalary") {
+      sortCondition = { salary: -1 };
+    }
+
     const jobs = await Job.find(condition)
       .populate({ path: "company" })
-      .sort({ createdAt: -1 });
+      .sort(sortCondition);
 
     if (!jobs) {
       return res.status(404).json({
