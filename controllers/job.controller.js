@@ -66,6 +66,8 @@ export const getAllJobs = async (req, res) => {
       sortBy,
       limit = 6,
       page = 1,
+      salaryMin,
+      salaryMax,
     } = req.query;
     const locationArray = location ? location.split(",") : [];
     let sortCondition = { createdAt: -1 };
@@ -110,6 +112,16 @@ export const getAllJobs = async (req, res) => {
       sortCondition = { createdAt: -1 };
     } else if (sortBy === "highestSalary") {
       sortCondition = { salary: -1 };
+    }
+
+    if (salaryMin && salaryMax) {
+      condition = {
+        ...condition,
+        salary: {
+          $gte: parseInt(salaryMin),
+          $lte: parseInt(salaryMax),
+        },
+      };
     }
 
     const jobs = await Job.find(condition)
