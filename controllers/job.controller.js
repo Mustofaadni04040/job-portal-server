@@ -177,9 +177,15 @@ export const getJobById = async (req, res) => {
 
 export const getAdminJobs = async (req, res) => {
   try {
-    const { page = 1, limit = 6 } = req.query;
+    const { page = 1, limit = 6, keyword } = req.query;
     const adminId = req.id;
-    const jobs = await Job.find({ created_by: adminId })
+    const condition = {};
+
+    if (keyword) {
+      condition.title = { $regex: keyword, $options: "i" };
+    }
+
+    const jobs = await Job.find({ created_by: adminId, ...condition })
       .populate({
         path: "company",
       })
