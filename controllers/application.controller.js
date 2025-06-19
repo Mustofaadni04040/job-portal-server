@@ -89,25 +89,37 @@ export const getAppliedJobs = async (req, res) => {
   }
 };
 
-// jobs applied user info
+// get all applicants for a job
 export const getApplicants = async (req, res) => {
   try {
     const jobId = req.params.id;
-    const job = await Job.findById(jobId).populate({
-      path: "applications",
-      options: { sort: { createdAt: -1 } },
-      populate: { path: "applicant" }, // mendapatkan detail pelamar
-    });
+    const { page = 1, limit = 5 } = req.query;
 
-    if (!job) {
+    const applicants = await Application.find({ job: jobId })
+      .populate({
+        path: "applicant",
+        select: "_id fullname email phoneNumber",
+        options: { sort: { createdAt: -1 } },
+        populate: {
+          path: "profile",
+        },
+      })
+      .limit(limit)
+      .skip(limit * (page - 1));
+
+    if (!applicants) {
       return res.status(404).json({
-        message: "Job not found",
+        message: "applicants not found",
         success: false,
       });
     }
 
+    const count = applicants.length;
+
     return res.status(200).json({
-      job,
+      applicants,
+      total: count,
+      pages: Math.ceil(count / limit),
       success: true,
     });
   } catch (error) {
