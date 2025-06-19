@@ -114,7 +114,7 @@ export const getApplicants = async (req, res) => {
       });
     }
 
-    const count = applicants.length;
+    const count = await Application.countDocuments({ job: jobId });
 
     return res.status(200).json({
       applicants,
@@ -169,6 +169,7 @@ export const updateStatus = async (req, res) => {
 
     return res.status(200).json({
       message: "Status updated successfully",
+      status,
       success: true,
     });
   } catch (error) {
