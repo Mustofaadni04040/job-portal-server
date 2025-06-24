@@ -9,9 +9,7 @@ import { isValidatedObjectId } from "../middlewares/isValidatedObjectId.js";
 
 const router = express.Router();
 
-router
-  .route("/get-bookmarks")
-  .get(isAuthenticated, isValidatedObjectId, getBookmarks);
+router.route("/get-bookmarks").get(isAuthenticated, getBookmarks);
 router.route("/add-bookmark").post(isAuthenticated, addBookmark);
 router
   .route("/remove-bookmark/:id")

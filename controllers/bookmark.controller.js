@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { Bookmark } from "../models/bookmark.model.js";
 
 export const addBookmark = async (req, res) => {
@@ -54,22 +53,10 @@ export const removeBookmark = async (req, res) => {
     const userId = req.id;
     const jobId = req.params.id;
 
-    console.log("jobid", jobId);
-    console.log("userid", userId);
-
     const bookmark = await Bookmark.findOne({
       user: userId,
       job: jobId,
     });
-
-    if (!bookmark) {
-      res.status(404).json({
-        success: false,
-        message: "Job not found",
-      });
-    }
-
-    console.log("bookmark", bookmark);
 
     await bookmark.deleteOne();
 
