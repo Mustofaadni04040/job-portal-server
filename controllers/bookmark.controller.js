@@ -6,14 +6,6 @@ export const addBookmark = async (req, res) => {
     const { jobId } = req.body;
     const userId = req.id;
 
-    if (!mongoose.Types.ObjectId.isValid(jobId)) {
-      res.status(404).json({
-        success: false,
-        message: "Invalid job id",
-      });
-      return;
-    }
-
     const existingBookmark = await Bookmark.findOne({
       user: userId,
       job: jobId,
