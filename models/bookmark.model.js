@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const bookmarkSchema = new mongoose.Schema({
+const bookmarkSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.mongoose,
     ref: "User",
@@ -12,3 +12,5 @@ export const bookmarkSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+export const Bookmark = mongoose.model("Bookmark", bookmarkSchema);
