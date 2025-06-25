@@ -63,12 +63,15 @@ export const removeBookmark = async (req, res) => {
   try {
     const userId = req.id;
     const jobId = req.params.id;
+    const job = await Job.findById(jobId);
 
     const bookmark = await Bookmark.findOne({
       user: userId,
       job: jobId,
     });
 
+    job.archived = false;
+    await job.save();
     await bookmark.deleteOne();
 
     res.status(200).json({
