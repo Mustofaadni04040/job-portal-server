@@ -51,6 +51,10 @@ const jobSchema = new mongoose.Schema(
         ref: "Application",
       },
     ],
+    archived: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
