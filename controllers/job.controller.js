@@ -1,4 +1,6 @@
+import { Bookmark } from "../models/bookmark.model.js";
 import { Job } from "../models/job.model.js";
+import jwt from "jsonwebtoken";
 
 export const postJob = async (req, res) => {
   try {
@@ -57,6 +59,7 @@ export const postJob = async (req, res) => {
 
 export const getAllJobs = async (req, res) => {
   try {
+    let userId = null;
     let condition = {};
     const {
       keyword,
@@ -71,6 +74,11 @@ export const getAllJobs = async (req, res) => {
     } = req.query;
     const locationArray = location ? location.split(",") : [];
     let sortCondition = { createdAt: -1 };
+    const token = req.cookies.token;
+    if (token) {
+      const decoded = jwt.verify(token, process.env.SECRET_KEY);
+      userId = decoded.userId;
+    }
 
     const jobTypeArray = jobType ? jobType.split(",") : [];
     const experienceLevelArray = experienceLevel
@@ -130,6 +138,21 @@ export const getAllJobs = async (req, res) => {
       .limit(limit)
       .skip(limit * (page - 1));
 
+    const bookmarks = await Bookmark.find({ user: userId }).select("job");
+
+    const bookmarkedJobIds = new Set(bookmarks.map((b) => b.job.toString())); // Convert ObjectId ke string dan masukan ke set
+    const jobsWithArchived = jobs.map((job) => ({
+      _id: job._id,
+      // ...job.toObject(), // Mengonversi objek JSON menjadi objek JavaScript biasa
+      archived: bookmarkedJobIds.has(job._id.toString()), // has: mencari jobId di dalam set, lebih cepat dibandingkan dengan includes
+    }));
+
+    const filteredArchiveJobs = jobsWithArchived.filter(
+      (job) => job.archived === true
+    );
+
+    // console.log(filteredArchiveJobs);
+
     const count = await Job.countDocuments(condition);
 
     if (!jobs) {
@@ -144,6 +167,7 @@ export const getAllJobs = async (req, res) => {
       pages: Math.ceil(count / limit),
       total: count,
       success: true,
+      archived: filteredArchiveJobs,
     });
   } catch (error) {
     console.log(error);
