@@ -154,7 +154,6 @@ export const logout = async (req, res) => {
         httpOnly: true,
         sameSite: "none",
         secure: true,
-        domain: "seeker-server.vercel.app",
       })
       .json({
         message: "Logged out successfully",
