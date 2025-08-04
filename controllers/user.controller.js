@@ -150,10 +150,10 @@ export const logout = async (req, res) => {
   try {
     return res
       .status(200)
-      .clearCookie("token", {
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
+      .cookie("token", "", {
+        maxAge: 0,
+        domain: "seeker-server.vercel.app",
+        overwrite: true,
       })
       .json({
         message: "Logged out successfully",
