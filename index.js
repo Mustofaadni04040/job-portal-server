@@ -24,8 +24,8 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
