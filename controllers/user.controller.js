@@ -149,7 +149,7 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.cookies("token", "", {
+    res.cookie("token", "", {
       maxAge: 0,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
