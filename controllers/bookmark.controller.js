@@ -64,8 +64,9 @@ export const removeBookmark = async (req, res) => {
     await bookmark.deleteOne();
 
     res.status(200).json({
+      bookmark,
       success: true,
-      message: "Job bookmark removed successfully",
+      message: "Job removed successfully",
     });
   } catch (error) {
     console.log(error);
