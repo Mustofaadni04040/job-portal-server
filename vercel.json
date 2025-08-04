@@ -10,6 +10,26 @@
     {
       "src": "/(.*)",
       "dest": "index.js"
+    },
+    {
+      "src": "/user/.*",
+      "dest": "./routes/user.route.js"
+    },
+    {
+      "src": "/application/.*",
+      "dest": "./routes/application.route.js"
+    },
+    {
+      "src": "/job/.*",
+      "dest": "./routes/job.route.js"
+    },
+    {
+      "src": "/bookmark/.*",
+      "dest": "./routes/bookmark.route.js"
+    },
+    {
+      "src": "/company/.*",
+      "dest": "./routes/company.route.js"
     }
   ]
 }
