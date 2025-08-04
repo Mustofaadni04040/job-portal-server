@@ -150,7 +150,6 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   try {
     return res
-      .status(200)
       .clearCookie("token", {
         maxAge: 0,
         httpOnly: true,
