@@ -135,6 +135,8 @@ export const login = async (req, res) => {
         httpOnly: true,
         sameSite: "none",
         secure: true,
+        domain: "seeker-server.vercel.app",
+        path: "/",
       })
       .json({
         message: `Welcome back ${user.fullname}`,
@@ -152,8 +154,11 @@ export const logout = async (req, res) => {
       .status(200)
       .cookie("token", "", {
         maxAge: 0,
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
         domain: "seeker-server.vercel.app",
-        overwrite: true,
+        path: "/",
       })
       .json({
         message: "Logged out successfully",
