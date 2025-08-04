@@ -2,12 +2,12 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "../utils/db.js";
-import userRoute from "../routes/user.route.js";
-import companyRoute from "../routes/company.route.js";
-import jobRoute from "../routes/job.route.js";
-import applicationRoute from "../routes/application.route.js";
-import bookmarkRoute from "../routes/bookmark.route.js";
+import connectDB from "./utils/db.js";
+import userRoute from "./routes/user.route.js";
+import companyRoute from "./routes/company.route.js";
+import jobRoute from "./routes/job.route.js";
+import applicationRoute from "./routes/application.route.js";
+import bookmarkRoute from "./routes/bookmark.route.js";
 
 dotenv.config({});
 
@@ -43,6 +43,10 @@ app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 app.use("/api/v1/bookmark", bookmarkRoute);
+
+app.get("/", (req, res) => {
+  res.send("🚀 API is running");
+});
 
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);
