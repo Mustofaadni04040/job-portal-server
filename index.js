@@ -11,12 +11,11 @@ import bookmarkRoute from "./routes/bookmark.route.js";
 
 dotenv.config({});
 
-connectDB();
-
 const app = express();
 
 //middleware
 app.use(express.json());
+connectDB();
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const allowedOrigins = [
